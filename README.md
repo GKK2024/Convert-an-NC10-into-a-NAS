@@ -60,7 +60,7 @@
 
 
 
-### 导航页的应用展示
+## 导航页的应用展示
 
 ![image-20240810150016814](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408101500010.png)
 
