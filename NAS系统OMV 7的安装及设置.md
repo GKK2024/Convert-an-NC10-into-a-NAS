@@ -273,7 +273,7 @@ export PATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
 >
 > openmediavault-omvextrasorg	第三方插件库。
 >
-> openmediavault-podman		开源docker容器管理工具
+> openmediavault-podman		开源的容器管理工具
 >
 > openmediavault-remotemount	挂载远程存储/网盘的插件
 >
