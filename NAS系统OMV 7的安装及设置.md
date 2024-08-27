@@ -335,6 +335,57 @@ export PATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
 
 ![image-20240821174517112](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408211745406.png)
 
+**使用密钥登录ssh**
+
+第一步：ssh登录linux服务器，之后进入~/.ssh目录，
+
+```
+cd ~/.ssh/
+```
+
+第二步：执行如下命令创建密钥对，并以OpenSSH格式输出公钥值
+
+```
+# 创建密钥对
+ssh-keygen -t rsa
+
+# 查看文件
+ls -l
+# id_rsa 私钥 ； id_rsa.pub 公钥 ；id_rsa和id_rsa.pub都是OpenSSH格式的密钥。
+
+# 以OpenSSH格式输出公钥值
+ssh-keygen -e -f id_rsa.pub
+```
+
+第三步：将公钥添加到"用户"配置中。
+
+web添加公钥方法：
+
+> 首先，展开"用户"栏，进入"用户"项，进入用户"编辑"页
+>
+> 然后，在"ssh公钥"处，点击"+"号粘贴公钥值。
+
+![image-20240827230721915](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408272307326.png)
+
+命令行添加公钥方法：
+
+```
+# 此方法可以在"ssh-keygen"生成密钥后直接使用，之后命令行只需要公钥就能登录，免去每次指定私钥位置的步骤；
+# 添加刚生成的公钥：ssh-copy-id [user@remote_host]
+ssh-copy-id test@192.168.1.54
+
+# 添加指定公钥文件：ssh-copy-id -i [public_key_file] [user@remote_host]
+ssh-copy-id -i ~/.ssh/id_rsa.pub test@192.168.1.54
+# 若远程服务器上已经存在相同公钥，表示已经设置免密登录成功，可以忽略"公钥已存在"的警告。
+# 若要强制覆盖远程服务器上的公钥，可增加参数-f
+```
+
+第四步：下载私钥“id_rsa”至客户端，添加并使用。
+
+> 推荐ssh客户端：Android - [ServerBox](https://github.com/lollipopkit/flutter_server_box) | Windows - [putty](https://github.com/larryli/PuTTY)
+
+参考文档：[SSH — openmediavault 7.x.y 文档](https://docs.openmediavault.org/en/latest/administration/services/ssh.html) | [使用私钥登录 SSH 服务器(免密登录)](https://blog.csdn.net/tyustli/article/details/122222605) | [SSH 公钥登录](https://www.cnblogs.com/Hi-blog/p/9482418.html) | [ppk与OpenSSH密钥互转](https://www.jianshu.com/p/7818b3ad1d72)
+
 ### 文件共享设置
 
 #### 创建文件系统
@@ -459,11 +510,15 @@ export PATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
 
 **SMB如何启用-用户Home目录？**
 
-&emsp;要启用smb的home目录共享，需要指定home的位置，否则直接在smb中启用home目录会报错，导致无法完成设置。另外，启用之后的home目录需要登录才能浏览。
+&emsp;要启用smb的home目录共享，需要指定home的具体位置，必须是绝对路径，否则直接在smb中启用home目录会报错，导致无法完成设置。另外，启用之后的home目录需要登录才能浏览。
 
-> 首先，展开"用户"栏，进入"设置"
+> 首先，展开"用户"栏，进入"设置"；
 >
-> 接着，勾选"已启动"，选择已创建的共享文件夹" / "或者" /home "，后保存；
+> > 在这里可以将用户目录移动到指定的共享文件夹之下。
+>
+> 接着，勾选"已启动"，选择已创建的共享文件夹"/home"，后保存；
+>
+> > 表示将当前用户test的用户目录"test"移动到 /home 目录下。
 >
 > 然后：回到上面的第三步"设置"界面，将主目录下的"已启动"勾选上。
 >
@@ -744,7 +799,7 @@ borg extract -v --list $backup/::"archive" /path/file
 示例e：borg extract -v --list /srv/dev-disk-by-uuid-62d56451-08bf-4d0f-922e-7e00fd80c721/system_backup/omvbackup/borgbackup::backup-omv-2024-08-24_22-21-54 /home/user/
 ```
 
-参考文档：[快速入门 — Borg - Deduplicating Archiver 1.4.0 文档](https://borgbackup.readthedocs.io/en/stable/quickstart.html#restoring-a-backup) | [如何在 Linux 中使用 BorgBackup 备份和恢复文件](https://www.modb.pro/db/220215)
+参考文档：[快速入门 — Borg - Deduplicating Archiver 1.4.0 文档](https://borgbackup.readthedocs.io/en/stable/quickstart.html#restoring-a-backup) | [如何在 Linux 中使用 BorgBackup 备份和恢复文件](https://www.modb.pro/db/220215) | [Backup 插件官方使用手册](https://wiki.omv-extras.org/doku.php?id=docs_in_draft:backup-next)
 
 **五种备份方式的三次简单对比：**
 
