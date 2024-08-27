@@ -319,7 +319,7 @@ export PATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
 
 ### 用户账户设置
 
-**增加ssh登录权限:**
+#### **普通用户添加ssh登录权限:**
 
 &emsp;在安装了OMV本体后，我们设置的普通用户会被取消ssh登录权限，导致无法通过putty等终端连接工具登录服务器，所以需要在WebUI中恢复，将普通用户加入ssh组。
 
@@ -335,54 +335,63 @@ export PATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
 
 ![image-20240821174517112](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408211745406.png)
 
-**使用密钥登录ssh**
+#### **为普通用户添加ssh密钥**
 
-第一步：ssh登录linux服务器，之后进入~/.ssh目录，
+&emsp;通过添加密钥，可以实现用户账户使用SSH免密登录OMV，当密码不复杂时，个人使用的服务器这一步不是必须的。
+
+第一步：创建密钥对，并获取公钥值。
 
 ```
+# 首先，ssh登录OMV服务器，再进入~/.ssh目录，
+ssh test@192.168.1.54
 cd ~/.ssh/
-```
 
-第二步：执行如下命令创建密钥对，并以OpenSSH格式输出公钥值
-
-```
-# 创建密钥对
+# 接着，执行如下命令创建密钥对
 ssh-keygen -t rsa
-
 # 查看文件
 ls -l
-# id_rsa 私钥 ； id_rsa.pub 公钥 ；id_rsa和id_rsa.pub都是OpenSSH格式的密钥。
+# 共两个文件，id_rsa 私钥 ； id_rsa.pub 公钥 ；id_rsa和id_rsa.pub都是OpenSSH格式的密钥。
+id_rsa
+id_rsa.pub
 
-# 以OpenSSH格式输出公钥值
+# 然后，以OpenSSH格式输出公钥值
 ssh-keygen -e -f id_rsa.pub
+
+# 最后，复制输出的公钥值，待用。
 ```
 
-第三步：将公钥添加到"用户"配置中。
-
-web添加公钥方法：
+第二步：将公钥添加到"用户"配置中。
 
 > 首先，展开"用户"栏，进入"用户"项，进入用户"编辑"页
 >
 > 然后，在"ssh公钥"处，点击"+"号粘贴公钥值。
+>
+> 最后，保存并应用改变。
 
 ![image-20240827230721915](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408272307326.png)
 
-命令行添加公钥方法：
+第三步：下载私钥“id_rsa”至客户端，添加并使用。
+
+> 推荐ssh客户端：Android - [ServerBox](https://github.com/lollipopkit/flutter_server_box) | Windows - [putty](https://github.com/larryli/PuTTY) | [putty添加密钥方法](https://www.jianshu.com/p/00376fe62655)
+
+
+
+关于命令行使用公钥免密登录的方法：
 
 ```
-# 此方法可以在"ssh-keygen"生成密钥后直接使用，之后命令行只需要公钥就能登录，免去每次指定私钥位置的步骤；
-# 添加刚生成的公钥：ssh-copy-id [user@remote_host]
+# 此方法可以在"ssh-keygen"生成密钥后可直接使用，将刚生成的公钥添加到远程服务器
+# 之后命令行只需要公钥就能登录，免去每次指定私钥位置的步骤；
+# 命令结构：ssh-copy-id [user@remote_host]
 ssh-copy-id test@192.168.1.54
 
 # 添加指定公钥文件：ssh-copy-id -i [public_key_file] [user@remote_host]
 ssh-copy-id -i ~/.ssh/id_rsa.pub test@192.168.1.54
 # 若远程服务器上已经存在相同公钥，表示已经设置免密登录成功，可以忽略"公钥已存在"的警告。
 # 若要强制覆盖远程服务器上的公钥，可增加参数-f
+
+# 登录远程服务器命令，ssh user@remote_host
+ssh test@192.168.1.54
 ```
-
-第四步：下载私钥“id_rsa”至客户端，添加并使用。
-
-> 推荐ssh客户端：Android - [ServerBox](https://github.com/lollipopkit/flutter_server_box) | Windows - [putty](https://github.com/larryli/PuTTY)
 
 参考文档：[SSH — openmediavault 7.x.y 文档](https://docs.openmediavault.org/en/latest/administration/services/ssh.html) | [使用私钥登录 SSH 服务器(免密登录)](https://blog.csdn.net/tyustli/article/details/122222605) | [SSH 公钥登录](https://www.cnblogs.com/Hi-blog/p/9482418.html) | [ppk与OpenSSH密钥互转](https://www.jianshu.com/p/7818b3ad1d72)
 
@@ -845,7 +854,51 @@ borg extract -v --list $backup/::"archive" /path/file
 
 ![image-20240820203035767](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408202030045.png)
 
-### WebUI启用https登录
+### OMV“证书”的应用
+
+#### 从OMV免密登录其他服务器
+
+&emsp;OMV提供了SSH证书创建服务，通过将本地创建的公钥安装到远程服务器上，以实现SSH私钥免密登录远程服务器。此处OMV作为本地机，远程服务器记为"服务器A"。
+
+第一步：本地创建SSH密钥对
+
+> 首先，OMV展开"系统"栏，再展开"证书"项，进入"SSH"设置界面，点击"+"号进入创建页面
+>
+> 然后，密钥类型选择-RSA；标签任意填写。
+>
+> 最后，保存并应用更改。
+
+![image-20240828011422210](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408280114572.png)
+
+第二步：添加公钥到远程"服务器A"
+
+> 首先，上一步结束以后，会自动回到"SSH"设置界面。
+>
+> 接着，选中刚创建的密钥对（证书），进入远程推送密钥页面。
+>
+> 然后，填写远程服务器的IP地址、端口、用户名及密码；
+>
+> 最后，点击"复制"，推送至远程服务器。
+
+![image-20240828013505541](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408280135920.png)
+
+第三步：获取OMV本地私钥文件，并登录远程"服务器A"
+
+```
+# 首先，使用ssh登录OMV
+# 接着，查找创建的密钥对文件，文件位置"/etc/ssh/"
+ls /etc/ssh/openmediavault-*
+# "openmediavault-*"私钥,"openmediavault-*.pub"公钥；
+/etc/ssh/openmediavault-aaa8bf94-2ee5-489b-a513-d1363a4106f4
+/etc/ssh/openmediavault-aaa8bf94-2ee5-489b-a513-d1363a4106f4.pub
+
+# 最后，使用私钥登录远程"服务器A"；
+# 命令：sudo ssh -i [public_key_file] [user@remote_host]
+# [public_key_file]私钥文件路径； [user@remote_host]服务器用户名@地址。
+sudo ssh -i /etc/ssh/openmediavault-aaa8bf94-2ee5-489b-a513-d1363a4106f4 test@192.168.1.37
+```
+
+#### WebUI启用https登录
 
 &emsp;WebUI登录默认是http协议，即无加密。一般不将NAS暴露到公网环境的话，多数是内网使用也就无需使用https协议了，还有一个原因是“自建证书”并强制https登录每次都会跳出“网站不安全”的提示，需要手动跳转登录页，相当麻烦。
 
