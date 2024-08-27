@@ -112,7 +112,7 @@ wget -O - https://github.com/OpenMediaVault-Plugin-Developers/packages/raw/maste
 
 #### 手动安装插件库（一）：
 
-&emsp;本体安装后，暂时不能直接使用插件，点击会有500报错，这是因为插件展示还没有软件源。与有代理安装方法不同的是，这里无需重启NC10，可以直接下载并安装第三方库的插件包，“all7”中包含了所有架构的三方库。
+&emsp;本体安装后，有可能在WebUI中看到插件库"omv-extras"未出现、未安装，或暂时不能使用"插件"的情况，甚至点击"插件"会有500报错，这大概率是因为网络原因导致的"插件"还没有软件源，只需要补充一下三方插件库即可。与有代理时的安装方法不同，这里无需重启NC10，可以直接下载并安装第三方库的插件包，“all7”中包含了所有架构的三方库。
 
 1. 下载deb包：openmediavault-omvextrasorg_latest_all7.deb	{ [Github](https://raw.githubusercontent.com/OpenMediaVault-Plugin-Developers/packages/master/openmediavault-omvextrasorg_latest_all7.deb)  |  [Gitee](https://gitee.com/GKK2024/packages/blob/master/openmediavault-omvextrasorg_latest_all7.deb) }
 
@@ -196,7 +196,7 @@ wget -O - https://github.com/OpenMediaVault-Plugin-Developers/packages/raw/maste
 >
 > Note: root's PATH should usually contain /usr/local/sbin, /usr/sbin and /sbin
 
-&emsp;环境变量问题，root用户环境变量需要增加 /usr/local/sbin:/usr/sbin:/sbin  几个目录；root用户下临时添加PATH，只需要将下方内容粘贴到putty窗口中运行即可：
+&emsp;环境变量问题，root用户环境变量需要增加路径 /usr/local/sbin:/usr/sbin:/sbin  ；root用户下临时添加PATH，只需要将下方内容粘贴到putty窗口中运行即可：
 
 ```
 export PATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
@@ -273,7 +273,7 @@ export PATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
 >
 > openmediavault-omvextrasorg	第三方插件库。
 >
-> openmediavault-podman		开源的容器管理工具
+> openmediavault-podman		开源docker容器管理工具
 >
 > openmediavault-remotemount	挂载远程存储/网盘的插件
 >
@@ -337,227 +337,267 @@ export PATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
 
 ### 文件共享设置
 
-&emsp;通过前面的方法，我们已经安装上了omv本体和第三方插件库，NC10也已经具备了使用的基本要求。这里我们将设置共享服务，为家庭中的局域网设备提供可用于存储、传输、中转及挂载等功能。这其中使用比较广泛的有三种，分别是SMB、NFS和Webdav，根据个人需求设置开启即可。
+#### 创建文件系统
 
-#### 设置共享文件夹
+&emsp;文件系统：可以粗浅的理解为OMV给磁盘创建分区并且格式化，提供了EXT4、XFS等可以识别的文件系统。你在WebUI中操作，就是给磁盘创建单一的大分区，这会删除你磁盘原本已经有的分区及数据。
 
-&emsp;要开启文件共享服务，前提是需要设置一个用于共享的"文件夹"，这里的"文件夹"不是特指某一个目录，它可以是一整个磁盘。
+**设置步骤：**
 
-&emsp;回忆一下，我们安装Debian系统时对"分区方案"的操作，一个是"TF卡/U盘为系统盘"，本地磁盘作为数据盘；另一个是"本地磁盘为系统盘"，单独开辟一个分区做"/home"目录。正因为OMV出于对数据的保护，采用了系统空间和用户数据空间分离的设计，所以我才建议采用这两种方案分区。
+第一步：查看硬盘信息
 
-&emsp;不论是上面的哪种方案，只要系统和数据不在一个磁盘或磁盘分区，就可以将未存放系统的磁盘或分区设置为"共享文件夹"。而分区方案选"本地磁盘为系统盘"，并单独开辟一个分区做"/home"目录的，下方内容可以跳过第一、二步，直接进入第三步，只需调整第三步"文件系统"选项，选择"/home"即可。
-
-> **第一步：查看硬盘信息**
->
 > 首先，展开"存储器"，接着点击"磁盘"项进入设置页。
 >
 > 然后，通过磁盘"型号"和"容量"识别需要设置共享的磁盘；
 >
-> 最后，记住设备名，例如 /dev/sdb ；这是我要作为数据盘的500G硬盘。
+> 最后，记住设备名，例如 /dev/sdb ；这是我要作为共享的500G硬盘。
 
 ![image-20240822015325002](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408220153303.png)
 
-> **第二步：挂载文件系统**
->
+第二步：挂载并挂载文件系统
+
 > 首先，展开"存储器"，接着点击"文件系统"项进入设置页。
 >
-> 然后，点击页面中的"+"号，创建"EXT4"格式文件系统；"设备"选刚记住的设备名，例如 /dev/sdb磁盘。
+> 然后，点击页面中的"+"号，创建"EXT4"文件系统；"设备"选刚记住的设备名，例如 /dev/sdb磁盘。
 >
-> 最后，在上方保存后，会跳转"挂载"，只需要选中刚创建的文件系统“/dev/sdb1”后，保存并应用改变即可挂载成功。可以填写一个标签来提示此“文件系统”的作用。
+> 最后，在上方设置保存后，会跳转"挂载"页，选中刚创建的文件系统“/dev/sdb1”，填写标签来提示此“文件系统”的作用，保存并应用改变，就可成功挂载。
 
 ![image-20240822020155824](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408220201103.png)
 
 ![image-20240822020645472](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408220206728.png)
 
-![image-20240822021754842](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408220217143.png)
+#### 创建共享文件夹
 
-> **第三步：创建共享文件夹**
->
+&emsp;"共享文件夹"就是一个普通的目录，它可以是磁盘也可以是磁盘下创建的某个目录，"共享"我的大致理解是Debian与OMV共享的意思，可以被OMV使用，利用协议共享则是提供给局域网内的其他设备使用。
+
 > 首先，展开"存储器"，接着点击"共享文件夹"项进入设置页。
 >
 > 接着，点击页面中的"+"号，进入创建页面。
 >
-> 然后，按顺序填入信息；
+> 然后，按顺序填入信息。
 >
-> > **"相对路径"**：默认为" 名称/ "，不需改动。当只填入“ / ” 即共享整个"文件系统"；填入“ /目录名/ ”，可省略根目录的" / "，例如 “500G/”，表示共享"文件系统"下名为"500G"的目录及其所有文件；也可以只共享某个目录的子目录及其所有文件，只需要添加路径即可，例如  "500G/share"、"500G/smb"等。
->>
-> > **"权限"**：保持默认即可，"其他"也设置为"读/写"，可以为匿名用户使用共享内容提供读、存、改、删的权限。因缺乏安全性，建议只在不涉及隐私数据的目录使用，例如  临时存取目录、文件下载目录等。
+> > **"相对路径"**：默认为" 名称/ "，第一次不需改动，以后根据需求调整。
+> >
+> > 相对于"绝对路径"而言的，参照物是你选择的"磁盘"或者说创建的"文件系统"，以它为"/"根目录。当只填入“ / ” 即 共享整个"文件系统"（磁盘/根目录）；
+> >
+> > 填入“ /目录名/ ”，即 将根目录下的某个目录设为共享文件夹，通常可省略第一个根目录的符号" / "，例如 “500G/”，将根目录下名为"500G"的目录设为共享文件夹；也可以设置它的子目录为共享文件夹，只需要添加路径即可（会自动创建新目录），例如  "500G/WebDAV-NOTE/"、"500G/NFS-Download/"等，此时500G是父目录，WebDAV-NOTE、NFS-Download是子目录，若父目录被协议共享则子目录内容也会被共享。为了避免重要数据被共享，我们可以建立与之平级的目录"system backup/"，当500G被共享时，"system backup"不受影响。
+> >
+> > <img src="https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408270254892.png" alt="image-20240827025414566" style="zoom: 67%;" />
+>
+> > **"权限"**：保持默认即可。
+> >
+> > "其他"也设置为"读/写"，可以为匿名用户、www-data的用户使用共享内容提供读、存、改、删的权限。因缺乏安全性，建议只在不涉及隐私数据的目录使用，例如  临时存取目录、文件下载目录等，或者为某个用户单独设置读写权限，而不是全部放开。
 >
 > 最后，保存并应用改变。
->
 
-![image-20240823021520769](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408230215069.png)
+![image-20240827131403952](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408271314441.png)
 
-> **第四步：覆写密码**
->
-> 这一步很关键，是为了让普通用户挂载刚创建的"共享文件夹"时，能够使用"用户名"和"密码"进行登录。
->
-> 在"用户"设置页中编辑自己设置的普通用户，例如 user ；只需要在"密码"行重新输入一次普通用户的登录密码，然后保存并应用改变即可。之后登陆时使用此账号即可登录smb。
->
+**如何共享系统根目录**？
 
-![image-20240822032455934](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408220324281.png)
+&emsp;可能你也发现了，通过上面的方法设置下来，"文件系统"中没有安装了Debian系统的磁盘选择，这是因为OMV采用的是系统和数据分离的方案，默认是不能共享根目录的。当你想要将根目录设为文件夹时，需要在"插件"库安装一个名为"sharerootfs"的第三方插件，安装成功后会自动将系统根目挂载到文件系统，就可以在"共享文件夹"中设置了。
 
-&emsp;将OMV系统所在空间设置为共享文件夹。可能你也发现了，前面的设置方法只能将系统空间以外的分区为"共享文件夹"。当你想要将根目录设为共享亦或是单磁盘三分区时(即 boot、根分区、swap)，就会发现似乎并没有选项可供操作。其实，第三方插件库早已经帮你想好应对方法，只需安装一个名为"sharerootfs"的插件，就可以共享根文件系统。
-
-> 第一步：展开"系统"栏，进入“插件”页，搜索"sharerootfs"，选中并安装；
+> 首先，展开"系统"栏，并进入“插件”页
 >
-> 第二步：按照前面所讲的方法 "第三步" "第四步" 进行后面的共享设置，将"共享文件夹"创建页面中的"设备"选择为根目录即可。
+> 接着，搜索"sharerootfs"，并选中并安装它；
+>
+> 然后，回到"创建共享文件夹"的步骤进行后面的设置，只需要将"文件系统"选择为根目录即可。也可以将"/home"目录设置为共享文件夹。
+>
+> 最后，保存并应用改变。
 
 ![image-20240822035107126](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408220351440.png)
 
-#### 开启SMB服务
+![image-20240827134559368](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408271345523.png)
+
+#### 覆写密码
+
+&emsp;这一步在第一次创建共享文件夹后很关键，决定了刚刚以及之后创建的"共享文件夹"，能否使用"用户名"和"密码"进行登录。
+
+> 首先，到"用户"设置界面中编辑自己设置的普通用户，例如 test ；
+>
+> 接着，在弹出的编辑页，"密码"这行重新输入两次登录密码；
+>
+> 然后，保存并应用改变即可。使用此账号即可登录、修改smb共享的资源。
+
+![image-20240827132340059](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408271323235.png)
+
+#### 开启SMB共享
 
 &emsp;要论跨平台和易用性，smb协议当仁不让。在Windows的网络邻居中可以直接发现局域网中的SMB共享资源，一点即连，不需要三方客户端；而在linux、Mac、iOS上，通过自带的文件管理器输入服务器ip地址，也可以方便的连接上SMB共享；至于Android系统，支持smb的文件管理器更是不胜枚举。所以图省事、跨平台，三种共享协议中必启用SMB服务。
 
 &emsp;并且，在“硬件信息篇”我也放出了Windows通过SMB协议，上传下载的传输速度，有线情况下几乎是稳定在30m/s上下，作为一个轻NAS，显然也已经达到能用的水平了。
 
-设置步骤：
+**设置步骤**：
 
-> 第一步：先展开"系统"栏，再展开"SMB/CIFS"项，然后进入"共享"设置界面，最后点击"+"进入创建页；
+第一步：为目录"500G"创建SMB共享
+
+> 首先，先展开"系统"栏，再展开"SMB/CIFS"项，然后进入"共享"设置界面，最后点击"+"进入创建页；
 >
-> 第二步：修改以下几项，其他可以看需求，或保持默认；
+> 然后，修改以下几项，其他保持默认，亦可看需求修改；
 >
-> > "Shared folder"：选择之前创建的共享文件夹，例如 500G；
+> > "Shared folder"：选择刚创建的共享文件夹，例如 500G；
 > >
-> > "公开"：根据需求选即可；
-> >
+> > > "公开"：根据需求选即可；演示为"允许访客"；
+> > >
 > > > Tips：-- 选 '否' ，需要用户和密码登录后才可以访问、编辑共享资源；
 > > >
-> > > ​	   -- 选'允许访客'，允许匿名登录，但不能编辑资源，除非"其他"为"读/写"权限；
+> > > ​	   -- 选'允许访客'，除密码登录外，也允许匿名登录，但不能编辑资源，除非"nobody" 或 “其他"设置了"读/写"权限；
 > > >
 > > > ​	   -- 选"仅访客"，无论是否登录，都视为访客身份，没有编辑共享文件的权限。
 > >
-> > "继承权限"：勾选上；主要应用于多用户账户场景，避免文件权限、归属混乱，个人使用可以不勾选。
+> > "继承权限"：勾选上；主要应用于多用户账户场景，避免文件权限、归属混乱，个人使用也可以不勾选。
 
-![image-20240822225158861](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408222251142.png)
+![image-20240827141013702](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408271410873.png)
 
-> 第三步："共享"部分设置完并保存之后，进入"设置"界面，勾选"已启动"和"继承权限"，
+第二步：为目录"500G"启动SMB共享
+
+> 当"共享"部分设置完并保存之后，进入SMB的"设置"界面，勾选上"已启动"和"继承权限"。
 >
-> 第四步：页面往下来到"高级设置"，最低协议版本建议选择SMB2.0，原因是有些系统、软件、APP不能识别SMB3.0，导致连接失败的情况时有发生，而1.0速度又太低了，毫无意义。
+> 然后页面往下来到"高级设置"，"最低协议版本"建议选择SMB2.0，原因是有些系统、软件、APP不能识别SMB3.0，导致连接失败的情况时有发生，而1.0速度又太低了，毫无意义。
 >
-> 第五步：保存并应用改变。
+> 最后，保存并应用改变。
 
-![image-20240822224511905](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408222245029.png)
+![image-20240827142613458](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408271426636.png)
+
+**SMB如何启用-用户Home目录？**
+
+&emsp;要启用smb的home目录共享，需要指定home的位置，否则直接在smb中启用home目录会报错，导致无法完成设置。另外，启用之后的home目录需要登录才能浏览。
+
+> 首先，展开"用户"栏，进入"设置"
+>
+> 接着，勾选"已启动"，选择已创建的共享文件夹" / "或者" /home "，后保存；
+>
+> 然后：回到上面的第三步"设置"界面，将主目录下的"已启动"勾选上。
+>
+> 最后，保存并应用改变
+
+![image-20240827144943582](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408271449731.png)
 
 帮助文档：[openmediavault 7.x.y —SMB共享](https://docs.openmediavault.org/en/latest/administration/services/samba.html)  |  []()
 
-#### 开启NFS服务
+#### 开启NFS共享
 
 &emsp;经过长时间使用的情况来看，SMB协议在Windows下的表现很出色，不过在linux系统中传输文件时，却不能跑到满速，上限大约在20~25m/s的样子，暂不清楚是由于什么原因导致的。反观挂载NFS时，上下行的速度几乎能跟Windows下的速度不分伯仲，甚至略有胜出，多数能有35m/s。
 
-&emsp;只不过我使用linux系统的机会非常少，多数只是临时从nas下载文件，传输与我而言并不是刚需，20~25m/s的速度也是可以接受的，这里开启NFS是作为SMB的补充，为padavan路由器、linux系统提供NAS上download和Video目录的挂载条件。
+&emsp;只不过我使用linux系统的机会非常少，多数只是临时从nas下载文件，传输与我而言并不是刚需，20~25m/s的速度也是可以接受的，这里开启NFS是作为SMB的补充，为padavan路由器、linux系统提供挂载NAS上download和Video目录的条件。
 
-&emsp;故此处只展示如何添加download文件夹的NFS共享，其他的文件夹和磁盘设置方法一致，调整共享文件夹的"相对路径"即可。
+&emsp;故此处只展示如何添加download文件夹的NFS共享，其他的目录共享设置方法一致，调整共享文件夹的"相对路径"即可。
 
-设置步骤：
+**设置步骤：**
 
-> 第一步：创建一个"download"目录的共享文件夹
+第一步：在目录"500G"下创建一个"NFS-Download"子目录，提供给NFS使用，设置为新的"共享文件夹"。
+
+> 首先，回到"共享文件夹"创建页;
 >
-> > 由于之前我们只创建了一个500G的共享文件夹，想要继续设置download目录共享，还需要在手动建立一个download共享目录；
-> >
-> > 首先，回到"共享文件夹"创建页，"相对路径"填入"500G/download/" ，这里的含义是将我们原来的"500G"共享文件夹下的目录"download"作为新的共享文件夹，当没有此目录时会自动创建。如果需要一个全新的并且独立于"500G"之外的download目录，可以在"文件系统"的根目录上建立一个与"500G"平级的目录，例如 "download/"；
-> >
-> > 然后，保存。
-
-![image-20240824142614953](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408241426831.png)
-
-> 第二步：赋予“nobody”用户"读写"权限
+> 然后，按顺序填写信息，在"相对路径"填入"500G/NFS-Download/" ，没有此目录时会自动创建。
 >
-> > 首先，当上一步设置完会自动回到"共享文件夹"设置界面，选中"download"的并进入"访问控制列表"设置页；
-> >
-> > 接着，来到页面最下方，看到"访问控制列表"；搜索框中输入“nobody”
-> >
-> > 之后，确认是用户名"nobody"，在后面点击“Read/Write”，赋予其读写权限。
-> >
-> > 最后，保存。
+> 然后，保存。
 
-![image-20240824160408796](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408241604084.png)
+![image-20240827150952770](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408271509937.png)
+
+第二步：给新文件夹赋予匿名用户"读写"权限
+
+> 首先，上一步设置完会自动回到"共享文件夹"设置界面，选中"Download"的并进入"访问控制列表"设置页；
+>
+> ![image-20240827151505309](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408271515435.png)
+>
+> 接着，来到页面最下方，看到"访问控制列表"；搜索框中输入“nobody”
+>
+> 之后，确认是用户名为"nobody"，并在后面点击“Read/Write”，赋予其读写权限。
+>
+> 最后，保存。
 
 ![image-20240824161219455](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408241612761.png)
 
-> 第三步：创建"download"目录的NFS共享
+第三步：为"Download"文件夹开启NFS共享
+
+> 首先，展开"服务"栏，再展开"NFS"项，之后进入"共享"设置界面，点击"+"进入创建页
 >
-> > 首先，展开"服务"栏，再展开"NFS"项，之后进入"共享"设置界面，点击"+"进入创建页
+> 之后，按顺序填入下方信息；
+>
+> > "Shared folder"：选择刚创建的Download的共享文件夹；
 > >
-> > 之后，按顺序填入下方信息；
+> > "客户端"：填入任意符"*"号，表示所有网段的设备都可以连接此目录；
 > >
-> > > "Shared folder"：选择刚创建的download的共享文件夹；
-> > >
-> > > "客户端"：填入任意符"*"号，表示所有网段的设备都可以连接此目录；
-> > >
-> > > "权限"：选择可"读/写"；
-> > >
-> > > "扩展选项"：rw,async,insecure,no_subtree_check,all_squash,anonuid=65534,anongid=65534 ；其中"anonuid="、"anongid="的数值，可以在命令行输入"id nobody"查询本机nobody的值替换；
-> > >
-> > > "标签"：填"download"，也可以不填。
+> > "权限"：选择可"读/写"；
 > >
-> > 最后，保存刚刚的设置。
+> > "扩展选项"：rw,async,insecure,no_subtree_check,all_squash,anonuid=65534,anongid=65534 ；其中"anonuid="、"anongid="的数值，可以在命令行输入"id nobody"查询本机nobody的值替换；
+> >
+> > "标签"：填"download"，也可以不填。
+>
+> 最后，保存刚刚的设置。
 
 ![image-20240824143642488](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408241436819.png)
 
-> 第四步：启动NFS服务
+第四步：启动NFS服务
+
+> 首先，"已启动"：勾选上；
 >
-> > 首先，"已启动"：勾选上；
-> >
-> > 接着，"版本"：勾选上v2，v3，v4；其他的不要勾选，会出现"无权限连接"报错，导致smb无法通过"共享发现"、"网上邻居"进行连接。
-> >
-> > 最后，保存
+> 接着，"版本"：勾选上v2，v3，v4；其他的不要勾选，会出现"无权限连接"报错，导致smb无法通过"共享发现"、"网上邻居"进行连接。
 >
-> 第五步：应用改变。
+> 最后，保存并应用改变
 
 ![image-20240824145357486](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408241453748.png)
 
 帮助文档：[openmediavault 7.x.y ——NFS共享](https://docs.openmediavault.org/en/latest/administration/services/nfs.html)  |  []()
 
-#### 开启Webdav服务
+#### 开启Webdav共享
 
-&emsp;Webdav是前两种协议不支持同步的一种补充，它的用途也很广泛，而我启用它是为了Chrome的书签、油猴脚本等本地自动备份。而要开启这一服务，则需要我们安装一个omv的webdav插件。
+&emsp;Webdav是前两种协议不支持同步的一种补充，它的用途也很广泛，而我启用它是为了笔记、Chrome的书签、油猴脚本等本地自动备份。而要开启这一服务，则需要我们安装一个omv的webdav插件。
 
-设置步骤：
+**设置步骤：**
 
-> 第一步：创建一个共享文件夹。
+第一步：在目录"500G"下创建一个"WebDAV-NOTE"子目录，提供给WebDAV使用，并设置为新的"共享文件夹"。
+
+> 首先，展开"存储器"，进入"共享文件夹"设置界面，点击"+"进入创建页
 >
-> &emsp;创建一个用于webdav共享的目录，例如 存放笔记的"500G/note/"；亦可以是已共享的“共享文件夹”目录，例如"500G/"；更可以是与"500G/"平级的目录"note/"；演示用 "500G/note/"。
-
-![image-20240825033401645](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408250334974.png)
-
-> 第二步：赋予权限。
+> 然后，按顺序填写信息。"相对路径"填写"500G/WebDAV-NOTE/"，会自动创建新目录。
 >
-> &emsp;上一步保存后，会自动跳转自"共享文件夹"设置界面，选中刚创建的"note"，进入"访问控制列表"；
+> 最后，保存设置。
+
+![image-20240827153402965](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408271534139.png)
+
+第二步：给新文件夹赋予www-data"读写"权限。
+
+> 首先，上一步保存后，会自动跳转自"共享文件夹"设置界面，选中刚创建的"note"，进入"访问控制列表"；
 >
-> &emsp;下拉至网页下方的"文件访问控制列表"，搜索框输入"www"，找到"www-data"，点击赋予“Read/Write”读与写权限后保存。
-
-![image-20240825033849297](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408250338578.png)
-
-![image-20240825034312194](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408250343501.png)
-
-> 第三步：安装插件。
+> ![image-20240827153701285](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408271537430.png)
 >
-> &emsp;进入"插件"页，搜索“webdav”，安装“openmediavault-webdav”插件。
+> 接着，下拉至网页下方的"文件访问控制列表"，搜索框输入"www"，并找到"www-data"用户；
+>
+> 然后，点击“Read/Write”赋予读写权限并保存。
+
+![image-20240827154149455](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408271541607.png)
+
+第三步：安装webdav插件。
+
+> 进入"插件"页，搜索“webdav”，并安装“openmediavault-webdav”插件。
 
 ![image-20240825041227779](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408250412085.png)
 
-> 第四步：开启Webdav服务。
->
-> &emsp;安装插件后，展开"服务"栏，进入webdav设置界面，按顺序填写信息，其中的"用户组需"选择"webdav-users；“扩展选项”需填入“charset utf-8;” 网页端才能显示中文内容。
+第四步：为"Note"文件夹开启Webdav共享。
 
-![202408250347268](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408250546688.png)
+> 安装插件之后，先是展开"服务"栏，再进入webdav设置界面；
+>
+> 之后，按顺序填写信息并保存。其中的"用户组需"选择"webdav-users；“扩展选项”需填入“charset utf-8;” 网页端才能显示中文内容。
 
-> 第六步：添加成员。
->
-> &emsp;进入“用户”栏的"用户组"项，编辑"webdav-users"用户组，在成员处添加一个普通用户，例如 user。之后保存并应用改变。
+> 配置文件位置：/etc/nginx/openmediavault-webgui.d/openmediavault-webdav.conf
 
-![image-20240825035749875](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408250357165.png)
+![image-20240827154916781](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408271549950.png)
 
-> 第七步：登录与挂载
+第五步：为"webdav-users"添加新成员。
+
+> 进入“用户”栏的"用户组"项，编辑"webdav-users"用户组，在成员处添加一个普通用户，例如 test。
 >
-> &emsp;目前已知问题：网页端无法直接使用，需要使用客户端连接；
+> 之后保存并应用改变。
+
+![image-20240827155436932](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408271554119.png)
+
+第六步：登录与挂载
+
+> 目前已知问题：网页端只能查看，无法直接使用，使用需要客户端连接；
+
+> 连接地址：http://your-host-IP/webdav ；例如 http://192.168.1.54/webdav
 >
-> &emsp;地址：http://your-host-IP/webdav ；例如 http://192.168.1.54/webdav
->
-> &emsp;用户名：user	密码：1234
->
-> &emsp;配置文件地址：/etc/nginx/openmediavault-webgui.d/openmediavault-webdav.conf
+> 用户名：test	密码：1234
 
 ### 自动化设置
 
@@ -617,45 +657,49 @@ export PATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
 
 #### 系统定期自动备份
 
-&emsp;OMV本身并没有提供备份的功能，但是在插件库中却有丰富的备份方案。我们用到的是"openmediavault-backup"这款插件，借助它可以轻松实现定期对系统分区的备份，其中提供了"dd"、"dd full disk"、"fsarchiver"、"borgbackup"、"rsync" 五种备份方式，每种方式都各具特点。个人比较推荐的是"fsarchiver"和"borgbackup"，前者有着高压缩率、备份的文件体积小的特点，恢复方式也不难；而后者不仅有着较高的压缩率还支持增量备份，对大体积的系统盘频繁备份比较友好，恢复更简单并且支持部分文件恢复。
+&emsp;OMV本身并没有提供备份的功能，但是在插件库中却有丰富的备份方案。我们用到的是"openmediavault-backup"这款插件，借助它可以轻松实现定期对系统分区的备份，其中提供了"dd"、"dd full disk"、"fsarchiver"、"borgbackup"、"rsync" 五种备份方式，每种方式都各具特点。个人比较推荐的是"fsarchiver"和"borgbackup"，前者有着高压缩率、备份的文件体积小的特点，恢复方式也不难；而后者不仅有着较高的压缩率还支持增量备份，对大体积的系统盘频繁备份比较友好，恢复更简单并且支持部分文件恢复，这里着重介绍borg。
 
-**fsarchiver备份**：[OMV 系统自动备份工具 fsarchiver 教程](https://songming.me/openmediavault-backup-fsarchiver-setup.html)
+**fsarchiver**备份：[OMV 系统自动备份工具 fsarchiver 教程](https://songming.me/openmediavault-backup-fsarchiver-setup.html)
 
-**borgbackup备份**
+**borgbackup备份 - 设置步骤**：
 
-设置步骤：
+第一步：在"/deb/sdb1"根目录创建一个共享文件夹"system_backup"，用于放置系统备份文件的。此时，"system_backup"与原本的"500G"为根目录下，是平级关系，后者共享不影响前者。
 
-> 第一步，创建一个用于放置系统备份文件的"共享文件夹 - system_backup"。
+> 首先，进入共享文件夹的"创建"页；
 >
-> > 进入共享文件夹的"创建"页，按顺序填入信息，可参考下图。
-> >
-> > “文件系统”建议是选择一个独立的磁盘/U盘/TF卡的介质，如果没有也没关系，也可以存放在独立的分区"/home"下面，建立名为"system_backup"的文件夹，易于识别。
+> 接着，按顺序填入信息，可参考下图。“文件系统”建议是选择一个独立的磁盘/U盘/TF卡的介质。
 
 ![image-20240825014619671](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408250146974.png)
 
-> 第二步：安装插件“openmediavault-backup”。进入"插件"，搜索"backup"，选中并安装它。
+第二步：安装插件。
+
+> 进入"插件"，搜索"backup"，选中“openmediavault-backup”并安装它。
 
 ![image-20240825015211751](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408250152087.png)
 
-> 第三步：插件安装后，"系统"栏下多出一个"备份"项，展开并进入"设置"界面。
+第三步：插件安装后，"系统"栏下多出一个"备份"项，展开并进入"设置"界面。
+
+> 参考图中进行填写。
 >
-> > 参考图中进行填写。
-> >
-> > borgbackup备份过程中会排除"/export"、"/srv"目录，若你是将系统备份文件存放在了"/home/system_backup"下，并且需要备份"/home"目录下的用户数据，那么“扩展选项”这一行就需要填入“--exclude=/home/system_backup”排除掉它，以免重复备份。
+> borgbackup备份过程中会自动排除"/export"、"/srv"目录，避免了重复备份。若你是将系统备份文件存放在了"/home"下，并且需要备份"/home"目录下的用户数据而不需要"system backup"，那么“扩展选项”这一行就需要填入“--exclude=/home/system_backup”排除掉它，以免重复备份。
 
 ![image-20240825015744340](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408250157657.png)
 
-> 第四步：创建定时任务。按图所示为每个月的每周二、周五凌晨4点30分，执行备份程序，时间自定义。
+第四步：创建定时任务。按图所示为每个月的每周二、周五凌晨4点30分，执行备份程序，时间自定义。
 
 ![image-20240825020650856](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408250206190.png)
 
-> 第五步：来到”系统“栏下的"计划任务"，选中"/usr/sbin/omv-backup"并试运行依次，看是否有错误。
+第五步：来到”系统“栏下的"计划任务"，选中"/usr/sbin/omv-backup"并试运行依次，看是否有错误。
 
 ![image-20240825021111848](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408250211152.png)
 
 **恢复文件：**
 
-> 首先，进入"共享文件夹"中获取备份目录"system_backup"的绝对路径，即“/srv/dev-disk-by-uuid-62d56451-08bf-4d0f-922e-7e00fd80c721/system_backup”；完整路径为：“绝对路径/omvbackup/borgbackup/”
+> 首先，进入"共享文件夹"中获取备份目录"system_backup"的绝对路径，
+>
+> > 即“/srv/dev-disk-by-uuid-62d56451-08bf-4d0f-922e-7e00fd80c721/system_backup”；
+> >
+> > 备份的完整路径为：“绝对路径/omvbackup/borgbackup/”
 >
 > 接着，列出备份信息和详细信息；"archive"是备份存档的名称
 >
