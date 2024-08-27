@@ -142,7 +142,7 @@ wget -O - https://github.com/OpenMediaVault-Plugin-Developers/packages/raw/maste
 
 [个人NAS系统方案二(1/8) OMV6系统和扩展库安装](https://zhuanlan.zhihu.com/p/627905956)
 
-[在树莓派上安装 OpenMediaVault（OMV） | 壹派胡言](https://www.yisihudong.com/2021/01/04/在树莓派上安装 OpenMediaVault（OMV）/#:~:text=运行 OMV 安装脚本 在终端运行下面的命令开始安装： wget,-O - https%3A%2F%2Fgithub.com%2FOpenMediaVault-Plugin-Developers%2FinstallScript%2Fraw%2Fmaster%2Finstall | sudo bash)
+[在树莓派上安装 OpenMediaVault（OMV）](https://www.yisihudong.com/2021/01/04/%E5%9C%A8%E6%A0%91%E8%8E%93%E6%B4%BE%E4%B8%8A%E5%AE%89%E8%A3%85%20OpenMediaVault%EF%BC%88OMV%EF%BC%89/#:~:text=%E8%BF%90%E8%A1%8C%20OMV%20%E5%AE%89%E8%A3%85%E8%84%9A%E6%9C%AC%20%E5%9C%A8%E7%BB%88%E7%AB%AF%E8%BF%90%E8%A1%8C%E4%B8%8B%E9%9D%A2%E7%9A%84%E5%91%BD%E4%BB%A4%E5%BC%80%E5%A7%8B%E5%AE%89%E8%A3%85%EF%BC%9A%20wget,-O%20-%20https%3A%2F%2Fgithub.com%2FOpenMediaVault-Plugin-Developers%2FinstallScript%2Fraw%2Fmaster%2Finstall%20%7C%20sudo%20bash)
 
 ### 关于安装中报错信息的记录
 
