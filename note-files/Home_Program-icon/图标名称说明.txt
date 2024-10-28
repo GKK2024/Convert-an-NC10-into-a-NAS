@@ -1,0 +1,19 @@
+# 本目录下的所有图标尺寸均为128*128像素，可通过ps6图像功能-图像大小进行变换。
+
+# 图标命名规则：
+1、应用名称+标注类型+外框效果
+  例如：
+  TPclash.png           无标注、无效果
+  TPclash-f.png         文字标注(f)、无效果
+  TPclash-f3D.png       文字标注(f)、3D效果
+  TPclash-3D.png        无标注、3D效果
+
+2、设备类型+颜色：
+  例如：
+  nas-b   nas 黑色(black)
+  nas-w   nas 白色(white)
+
+3、设备类型+品牌+标注+外框效果
+  例如：
+  onu-lt-f.png            光猫(ONU)+联通+文字标注(f)
+  ns-tp-f.png        网络交换机(Network Switch)+TPlink(tp)+文字标注(f)
