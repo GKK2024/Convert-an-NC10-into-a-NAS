@@ -20,47 +20,56 @@
 >
 > OMV 7 初始化设置
 
-### 开发语言及数据库部署
-  > 开发语言：Python | Rust | PHP | Golang | Java
-  >   
+### 开发环境部署
+  > 开发语言与环境：Python | Rust | PHP | Golang | Node.js | Java
+  >
   > 数据库：MariaDB | MySQL | SQLite3
   >
+  > 缓存系统：MemCached | Redis
 ### 常用软件的安装
+  >资源监控：btop | glances
   >
-  > 资源监控：btop | glances
-  > 
-  > 下载：Aria2 | qbittorrent | transmission
-  > 
-  > 云盘：Alist | Filebrowser | 可道云
-  > 
-  > 阅读：calibre | calibre-web | Ubooquity | Suwayomi_Server | 阅读3(服务器版)
-  > 
-  > 音乐：Navidrome
-  > 
-  > 视频：Plex
-  > 
-  > 图片：PicHome | EasyImages2.0 | Piwigo
-  > 
-  > 同步：syncthing | verysync
-  > 
-  > 内网穿透：Tailscale | Zerotier
-  > 
-  > 代理：TPclash
-  > 
-  > DNS服务器：Adgruadhome | SmartDNS
-  > 
-  > 笔记：Dokuwiki memos
-  > 
-  > 博客：Typecho
-  > 
-  > 导航页：home | van-nav | Lylme
+  >数据库管理：Phpmyadmin | Adminer
   >
-### Docker及可用容器部署
+  >下载：Aria2 | qbittorrent | transmission
+  >
+  >云盘：Alist | Filebrowser | 可道云 | Rclone
+  >
+  >阅读：calibre-web | calibre | Kepubify | 阅读3(服务器版)
+  >
+  >漫画：LANraragi | Ubooquity | Suwayomi_Server
+  >
+  >文档：Libreoffice | kkFileView
+  >
+  >音乐：Navidrome
+  >
+  >视频：Plex | FFmpeg
+  >
+  >图片：PicHome | EasyImages2.0 | Piwigo | ImageMagick
+  >
+  >同步：syncthing | verysync
+  >
+  >内网穿透：Tailscale | Zerotier | DDNS-go
+  >
+  >代理：TPclash | singbox
+  >
+  >DNS服务器：Adgruadhome | SmartDNS
+  >
+  >笔记：Dokuwiki memos
+  >
+  >博客：Typecho
+  >
+  >导航页：home | van-nav | flaring | Lylme
+  >
+  >智能家居：Home Assistant
+### i386-Docker及应用部署
 > 安装docker、docker-compose
 >
-> docker可用软件镜像：
+> i386-镜像部署
 >
 > > LANraragi ;
+> >
+> > Home Assistant；
 > >
 > > Aria2 Pro ; AriaNG ;
 > >

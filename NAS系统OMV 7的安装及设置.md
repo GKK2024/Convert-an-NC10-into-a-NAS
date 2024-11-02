@@ -117,7 +117,7 @@ wget -O - https://github.com/OpenMediaVault-Plugin-Developers/packages/raw/maste
 1. 下载deb包：openmediavault-omvextrasorg_latest_all7.deb	{ [Github](https://raw.githubusercontent.com/OpenMediaVault-Plugin-Developers/packages/master/openmediavault-omvextrasorg_latest_all7.deb)  |  [Gitee](https://gitee.com/GKK2024/packages/blob/master/openmediavault-omvextrasorg_latest_all7.deb) }
 
    ```
-   wget https://gitee.com/GKK2024/packages/blob/master/openmediavault-omvextrasorg_latest_all7.deb
+   wget https://gitee.com/GKK2024/Convert-an-NC10-into-a-NAS/raw/main/note-files/openmediavault-omvextrasorg_latest_all7.deb
    ```
 
 2. 使用dpkg命令安装
@@ -771,10 +771,10 @@ ssh test@192.168.1.54
 
 ```
 # 以列表的形式展示存档信息
-borg list /srv/dev-disk-by-uuid-62d56451-08bf-4d0f-922e-7e00fd80c721/system_backup/omvbackup/borgbackup
+sudo borg list /srv/dev-disk-by-uuid-62d56451-08bf-4d0f-922e-7e00fd80c721/system_backup/omvbackup/borgbackup
 
 # 展示更详细的存档信息
-borg list --json /srv/dev-disk-by-uuid-62d56451-08bf-4d0f-922e-7e00fd80c721/system_backup/omvbackup/borgbackup
+sudo borg list --json /srv/dev-disk-by-uuid-62d56451-08bf-4d0f-922e-7e00fd80c721/system_backup/omvbackup/borgbackup
 ```
 
 > 然后，查看存档列表，都包含哪些已备份的文件信息和目录信息；确认需要复原的目录。
@@ -782,7 +782,7 @@ borg list --json /srv/dev-disk-by-uuid-62d56451-08bf-4d0f-922e-7e00fd80c721/syst
 > > borg list 绝对路径/omvbackup/borgbackup::"archive"
 
 ```
-borg list /srv/dev-disk-by-uuid-62d56451-08bf-4d0f-922e-7e00fd80c721/system_backup/omvbackup/borgbackup::backup-omv-2024-08-24_22-21-54
+sudo borg list /srv/dev-disk-by-uuid-62d56451-08bf-4d0f-922e-7e00fd80c721/system_backup/omvbackup/borgbackup::backup-omv-2024-08-24_22-21-54
 ```
 
 > 最后，使用"bofg extract"恢复文件；
@@ -791,19 +791,19 @@ borg list /srv/dev-disk-by-uuid-62d56451-08bf-4d0f-922e-7e00fd80c721/system_back
 
 ```
 # 存档解压到当前目录
-borg extract -v --list $backup/::"archive"
+sudo borg extract -v --list $backup/::"archive"
 
 示例e：borg extract -v --list /srv/dev-disk-by-uuid-62d56451-08bf-4d0f-922e-7e00fd80c721/system_backup/omvbackup/borgbackup::backup-omv-2024-08-24_22-21-54
 
 
 # 使用"--dry-run"参数模拟提取，展示过程
-borg extract --dry-run -v --list $backup/::"archive"
+sudo borg extract --dry-run -v --list $backup/::"archive"
 
 示例e：borg extract --dry-run -v --list /srv/dev-disk-by-uuid-62d56451-08bf-4d0f-922e-7e00fd80c721/system_backup/omvbackup/borgbackup::backup-omv-2024-08-24_22-21-54
 
 
 # 通过传递目录名称从存档中提取特定目录
-borg extract -v --list $backup/::"archive" /path/file
+sudo borg extract -v --list $backup/::"archive" /path/file
 
 示例e：borg extract -v --list /srv/dev-disk-by-uuid-62d56451-08bf-4d0f-922e-7e00fd80c721/system_backup/omvbackup/borgbackup::backup-omv-2024-08-24_22-21-54 /home/user/
 ```
