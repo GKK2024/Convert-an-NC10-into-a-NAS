@@ -1,0 +1,204 @@
+{
+  "log": {
+    "level": "info",
+    "timestamp": true
+  },
+  "dns": {
+    "servers": [
+      {
+        "tag": "google",
+        "address": "tls://dns.google",
+        "address_resolver": "resolver",
+        "strategy": "ipv4_only",
+        "detour": "select"
+      },
+      {
+        "tag": "tencent",
+        "address": "tls://dot.pub",
+        "address_resolver": "resolver",
+        "strategy": "ipv4_only",
+        "detour": "direct"
+      },
+      {
+        "tag": "resolver",
+        "address": "223.5.5.5",
+        "strategy": "ipv4_only",
+        "detour": "direct"
+      }
+    ],
+    "rules": [
+      {
+        "outbound": "any",
+        "server": "tencent"
+      },
+      {
+        "clash_mode": "direct",
+        "server": "tencent"
+      },
+      {
+        "clash_mode": "global",
+        "server": "google"
+      },
+      {
+        "rule_set": "geosite-geolocation-cn",
+        "server": "tencent"
+      }
+    ],
+    "final": "google"
+  },
+  "inbounds": [
+    {
+      "type": "tun",
+      "tag": "tun-in",
+      "interface_name": "tun0",
+      "inet4_address": "172.17.0.1/30",
+      "auto_route": true,
+      "strict_route": true,
+      "stack": "mixed",
+      "sniff": true
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "selector",
+      "tag": "select",
+      "outbounds": [
+        "oracle-kr-hy2",
+        "oracle-us-reality",
+        "auto"
+      ],
+      "default": "oracle-us-reality",
+      "interrupt_exist_connections": true
+    },
+    {
+      "type": "hysteria2",
+      "tag": "oracle-kr-hy2",
+      "server": "vpsip",
+      "server_port": 8080,
+      "up_mbps": 30,
+      "down_mbps": 200,
+      "password": "example",
+      "tls": {
+        "enabled": true,
+        "server_name": "hy2.example.com"
+      }
+    },
+    {
+      "type": "vless",
+      "tag": "oracle-us-reality",
+      "server": "vpsip",
+      "server_port": 443,
+      "uuid": "57f12945-8219-4460-992f-3d3cd1e08612",
+      "flow": "xtls-rprx-vision",
+      "tls": {
+        "enabled": true,
+        "server_name": "www.python.org",
+        "utls": {
+          "enabled": true,
+          "fingerprint": "chrome"
+         },
+        "reality": {
+          "enabled": true,
+          "public_key": "bPBCZqA2lsDKDM83fJLJgm_BEsEja2K8zWrAmZ7FbFY",
+          "short_id": "6e1a647f0311592a"
+        }
+      }
+    },
+    {
+      "type": "urltest",
+      "tag": "auto",
+      "outbounds": [
+        "oracle-kr-hy2",
+        "oracle-us-reality"
+      ],
+      "url": "https://www.gstatic.com/generate_204",
+      "interval": "10m",
+      "interrupt_exist_connections": true
+    },
+    {
+      "type": "direct",
+      "tag": "direct"
+    },
+    {
+      "type": "block",
+      "tag": "block"
+    },
+    {
+      "type": "dns",
+      "tag": "dns"
+    }
+  ],
+  "route": {
+    "rules": [
+      {
+        "protocol": "dns",
+        "outbound": "dns"
+      },
+      {
+        "ip_is_private": true,
+        "outbound": "direct"
+      },
+      {
+        "clash_mode": "direct",
+        "outbound": "direct"
+      },
+      {
+        "clash_mode": "global",
+        "outbound": "select"
+      },
+      {
+        "rule_set": [
+          "geosite-category-ads-all"
+        ],
+        "outbound": "block"
+      },
+      {
+        "rule_set": [
+          "geoip-cn",
+          "geosite-geolocation-cn"
+        ],
+        "outbound": "direct"
+      }
+    ],
+    "rule_set": [
+      {
+        "type": "remote",
+        "tag": "geoip-cn",
+        "format": "binary",
+        "url": "https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-cn.srs",
+        "download_detour": "select",
+        "update_interval": "7d"
+      },
+      {
+        "type": "remote",
+        "tag": "geosite-geolocation-cn",
+        "format": "binary",
+        "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-geolocation-cn.srs",
+        "download_detour": "select",
+        "update_interval": "7d"
+      },
+      {
+        "type": "remote",
+        "tag": "geosite-category-ads-all",
+        "format": "binary",
+        "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-category-ads-all.srs",
+        "download_detour": "select",
+        "update_interval": "7d"
+      }
+    ],
+    "final": "select",
+    "auto_detect_interface": true
+  },
+  "experimental": {
+    "cache_file": {
+      "enabled": true
+    },
+    "clash_api": {
+      "external_controller": "0.0.0.0:9090",
+      "external_ui": "ui",
+      "external_ui_download_url": "",
+      "external_ui_download_detour": "select",
+      "default_mode": "rule"
+    }
+  }
+}
