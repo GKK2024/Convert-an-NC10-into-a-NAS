@@ -63,7 +63,7 @@
   >
   >智能家居：Home Assistant
 ### i386-Docker及应用部署
-> 安装docker、docker-compose
+> 安装 docker、docker-compose
 >
 > i386-镜像部署
 >
@@ -72,6 +72,8 @@
 > > Home Assistant；
 > >
 > > Aria2 Pro ; AriaNG ;
+> >
+> > qbittorrent；transmission；
 > >
 > > Alist ;
 
@@ -83,7 +85,7 @@
 >
 > ikuai_x32
 >
-> NanoBoot-x86-5.0.3.1
+> 群辉-5.0.3.1
 
 
 
