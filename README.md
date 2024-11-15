@@ -69,11 +69,15 @@
 >
 > > LANraragi ;
 > >
-> > Home Assistant；
+> > Home Assistant ；
+> >
+> > Adguard Home ;
 > >
 > > Aria2 Pro ; AriaNG ;
 > >
-> > qbittorrent；transmission；
+> > qbittorrent；qBittorrent-ClientBlocker ; 
+> >
+> > transmission；
 > >
 > > Alist ;
 
@@ -91,7 +95,7 @@
 
 ### 导航页的应用展示
 
-![image-20240810150016814](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408101500010.png)
+![screenshot-1731254370152](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202411151750392.png)
 
 ![image-20240810150309630](https://cdn.jsdelivr.net/gh/GKK2024/Convert-an-NC10-into-a-NAS@main/Images/202408101503848.png)
 
