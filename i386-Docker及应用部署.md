@@ -27,7 +27,7 @@ sudo docker-compose --version
 
 1、单次拉取加速
 
-> "<URL> "填需要拉取的镜像仓库地址
+> "\<URL\> "填需要拉取的镜像仓库地址
 
 ```
 docker pull docker.1panel.dev/<URL>
@@ -130,7 +130,7 @@ sudo docker run -d \
 >
 > i386专版·Docker Hub：[gkk2024/quark-auto-save](https://hub.docker.com/r/gkk2024/quark-auto-save) 
 
-**使用方法：**docker-compose
+**安装方法1：**docker-compose
 
 1、创建一个"docker-compose.yml"文件，并填入下方内容。
 
@@ -172,6 +172,41 @@ sudo docker-compose up -d
 >
 > 默认密码：admin123⁠⁠
 
+**安装方法2：**源码构建
+
+1、下载并解压源码
+
+> 源码地址：[v0.5.4.tar.gz](https://github.com/Cp0204/quark-auto-save/archive/refs/tags/v0.5.4.tar.gz) | [Releases](https://github.com/Cp0204/quark-auto-save/releases) 
+
+```
+cd ~
+wget https://github.com/Cp0204/quark-auto-save/archive/refs/tags/v0.5.4.tar.gz
+# 解压
+tar zxvf v0.5.4.tar.gz
+```
+
+2、构建镜像
+
+```
+cd ./quark-auto-save-0.5.4
+sudo docker build -t quark-auto-save .
+```
+
+3、启动容器
+
+```
+sudo docker run -d \
+  --name quark-auto-save \
+  -p 5005:5005 \
+  -e WEBUI_USERNAME=admin \
+  -e WEBUI_PASSWORD=admin123 \
+  -v /opt/quark-auto-save/config:/app/config \
+  -v /opt/quark-auto-save/media:/media \
+  --network bridge \
+  --restart unless-stopped \
+  quark-auto-save:latest
+```
+
 ### Adguard Home
 
 > Docker Hub：[adguardhome (官版)](https://hubgw.docker.com/r/adguard/adguardhome/tags) | [adguardhome (配置加强版)](https://hubgw.docker.com/r/adam9999/adguardhome) 
@@ -184,7 +219,7 @@ sudo docker-compose up -d
 
 部署"p3terx/aria2-pro"：
 
-&nbsp;&nbsp;&nbsp;&nbsp;设置下方的"<TOKEN>"为具体数值，如 1234，此后将用作aria2的密钥；"$PWD"会自动获取执行命令时的路径来创建配置文件和下载目录，也可以修改位具体路径，如 "/opt/aria2-pro"。
+&nbsp;&nbsp;&nbsp;&nbsp;设置下方的"\<TOKEN\>"为具体数值，如 1234，此后将用作aria2的密钥；"$PWD"会自动获取执行命令时的路径来创建配置文件和下载目录，也可以修改位具体路径，如 "/opt/aria2-pro"。
 
 > 命令行执行下方命令
 
@@ -294,7 +329,7 @@ sudo docker run -d \
 
 > 默认管理员账号：admin
 >
-> 首次启动alist查看日志的默认密码："<CONTAINER ID>"改为具体ID值
+> 首次启动alist查看日志的默认密码："\<CONTAINER ID\>"改为具体ID值
 >
 > ```
 > # 查询容器ID
