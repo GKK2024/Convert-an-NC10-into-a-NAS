@@ -69,7 +69,9 @@
 >
 > > LANraragi ;
 > >
-> > Home Assistant ；
+> > Home Assistant ;
+> >
+> > quark-auto-save;
 > >
 > > Adguard Home ;
 > >
